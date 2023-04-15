@@ -1,6 +1,7 @@
 import random
 import sys
 from PyQt5.QtWidgets import QMainWindow, QApplication
+from enum import Enum
 
 
 class MyWindow(QMainWindow):
@@ -11,10 +12,19 @@ class MyWindow(QMainWindow):
         self.show()
 
 
+class GameStates(Enum):
+    NOT_STARTED = 1
+    PLAYING = 2
+    WIN = 3
+    LOSE = 4
+
+
 class Game:
-    field = []
 
     def __init__(self, quantity_column):
+        self.__field = []
+        self.__col_number = quantity_column
+        self.__state = GameStates.PLAYING
         for c in range(quantity_column):
             column = []
             quantity_circles = random.randint(0, quantity_column - 1)
@@ -22,28 +32,23 @@ class Game:
             for r in range(quantity_circles):
                 column.append(random.randint(0, quantity_column))
 
-            for r in range(quantity_circles, quantity_column):
-                column.append(-1)
-
-            self.field.append(column)
+            self.__field.append(column)
 
     def get_random_circle(self):
-        return random.randint(0, len(self.field))
+        return random.randint(0, self.__col_number)
 
     def put_circle_in_column(self, circle, column):
-        i = len(self.field) - 1
+        if len(self.__field[column]) == self.__col_number:
+            self.__state = GameStates.LOSE
 
-        while i != -1 and self.field[column][i] == -1:
-            i -= 1
-        i += 1
-
-        self.field[column][i] = circle
+        self.__field[column].append(circle)
 
     def check_field_for_extra_circles(self):
         pass
 
 
 if __name__ == '__main__':
+    d = Game(2)
     app = QApplication(sys.argv)
     window = MyWindow()
     sys.exit(app.exec_())
