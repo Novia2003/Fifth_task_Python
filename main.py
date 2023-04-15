@@ -15,8 +15,7 @@ class MyWindow(QMainWindow):
 class GameStates(Enum):
     NOT_STARTED = 1
     PLAYING = 2
-    WIN = 3
-    LOSE = 4
+    LOSE = 3
 
 
 class Game:
@@ -34,6 +33,10 @@ class Game:
 
             self.__field.append(column)
 
+    @property
+    def field(self):
+        return self.__field
+
     def get_random_circle(self):
         return random.randint(0, self.__col_number)
 
@@ -44,11 +47,34 @@ class Game:
         self.__field[column].append(circle)
 
     def check_field_for_extra_circles(self):
-        pass
+        # проверка по каждому ряду
+        for row in range(self.__col_number):
+            circles_num = self.count_quantity_circles_in_row(row)
+            for col in self.__col_number:
+                if row < len(self.__field[col]) and circles_num == self.__field[col][row]:
+                    self.__field[col][row] = -1
+        # проверка по каждой колонне
+        for col in self.__col_number:
+            circles_num = len(self.__field[col])
+            for row in self.__field[col]:
+                if self.__field[col][row] == circles_num:
+                    self.__field[col][row] = -1
+
+    def count_quantity_circles_in_row(self, row):
+        count = 0
+
+        for col in self.__field:
+            if len(col) > row:
+                count += 1
+
+        return count
+
+    def delete_extra_circles(self):
+        for col in self.__col_number:
+            self.__field[col] = list(filter(lambda circle: circle != -1, self.__field[col]))
 
 
 if __name__ == '__main__':
-    d = Game(2)
     app = QApplication(sys.argv)
     window = MyWindow()
     sys.exit(app.exec_())
